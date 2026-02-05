@@ -4,7 +4,7 @@ import Expenses from "./components/Expenses/Expenses.jsx";
 import NewExpense from "./components/NewExpense/NewExpense.jsx";
 
 const DUMMY_EXPENSES = [
-  { id: "e1", date: new Date(2023, 0, 10), title: "Pants", price: 19.99 },
+  { id: "e1", date: new Date(2023, 1, 10), title: "Pants", price: 19.99 },
   { id: "e2", date: new Date(2024, 5, 5), title: "Jeans", price: 10.99 },
   { id: "e3", date: new Date(2025, 11, 1), title: "Socks", price: 25.99 },
   { id: "e4", date: new Date(2023, 8, 15), title: "Hat", price: 13.59 },

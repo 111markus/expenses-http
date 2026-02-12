@@ -5,14 +5,30 @@ import "./App.css";
 import Expenses from "./components/Expenses/Expenses";
 import NewExpense from "./components/NewExpense/NewExpense";
 import Error from "./components/UI/Error";
+import Login from "./components/Login/Login";
+import Header from "./components/Header/Header";
 
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
   const [isFetching, setIsFetching] = useState(false);
   const [expenses, setExpenses] = useState([]);
   const [error, setError] = useState(null);
   const [showError, setShowError] = useState(false);
 
+  // Check localStorage on mount
   useEffect(() => {
+    const storedLogin = localStorage.getItem("isLoggedIn");
+    const storedUsername = localStorage.getItem("username");
+    if (storedLogin === "true" && storedUsername) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
     const getExpenses = async () => {
       setIsFetching(true);
       try {
@@ -33,7 +49,21 @@ const App = () => {
     };
     getExpenses();
     console.log(expenses);
-  }, []);
+  }, [isLoggedIn]);
+
+  const loginHandler = (loggedInUsername) => {
+    setIsLoggedIn(true);
+    setUsername(loggedInUsername);
+  };
+
+  const logoutHandler = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("username");
+    localStorage.removeItem("userId");
+    setIsLoggedIn(false);
+    setUsername("");
+    setExpenses([]);
+  };
 
   const errorHandler = () => {
     setError(null);
@@ -75,8 +105,14 @@ const App = () => {
           onConfirm={errorHandler}
         />
       )}
-      <NewExpense onAddExpense={addExpensehandler}></NewExpense>
-      <Expenses expenses={expenses} isLoading={isFetching}></Expenses>
+      {!isLoggedIn && <Login onLogin={loginHandler} />}
+      {isLoggedIn && (
+        <>
+          <Header username={username} onLogout={logoutHandler} />
+          <NewExpense onAddExpense={addExpensehandler}></NewExpense>
+          <Expenses expenses={expenses} isLoading={isFetching}></Expenses>
+        </>
+      )}
     </div>
   );
 };

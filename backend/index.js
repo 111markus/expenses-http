@@ -13,6 +13,26 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  const fileContent = await fs.readFile("./data/users.json", "utf8");
+  const users = JSON.parse(fileContent);
+
+  const user = users.find(
+    (u) => u.username === username && u.password === password,
+  );
+
+  if (!user) {
+    return res.status(401).json({ message: "Invalid username or password" });
+  }
+
+  res.status(200).json({
+    message: "Login successful",
+    user: { id: user.id, username: user.username },
+  });
+});
+
 app.get("/expenses", async (req, res) => {
   const fileContent = await fs.readFile("./data/expenses.json");
   const expensesData = JSON.parse(fileContent);

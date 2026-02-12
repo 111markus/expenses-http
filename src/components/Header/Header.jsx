@@ -10,9 +10,10 @@ const Header = () => {
       <h1>Expense Tracker</h1>
       <div className="app-header__user">
         <span>Welcome, {ctx.username}</span>
-        <button className="app-header__logout-btn" onClick={ctx.onLogout}>
-          Logout
+        <button onClick={ctx.onToggleTheme}>
+          {ctx.theme === "dark" ? "☀️" : "🌙"}
         </button>
+        <button onClick={ctx.onLogout}>Logout</button>
       </div>
     </header>
   );

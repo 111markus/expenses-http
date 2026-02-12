@@ -1,36 +1,82 @@
-import React, { useState, useEffect } from "react";
-import "./App.css";
-import Expenses from "./components/Expenses/Expenses.jsx";
-import NewExpense from "./components/NewExpense/NewExpense.jsx";
+import React, { Fragment, useState, useEffect } from "react";
 
-const DUMMY_EXPENSES = [
-  { id: "e1", date: new Date(2023, 1, 10), title: "Pants", price: 19.99 },
-  { id: "e2", date: new Date(2024, 5, 5), title: "Jeans", price: 10.99 },
-  { id: "e3", date: new Date(2025, 11, 1), title: "Socks", price: 25.99 },
-  { id: "e4", date: new Date(2023, 8, 15), title: "Hat", price: 13.59 },
-];
+import "./App.css";
+
+import Expenses from "./components/Expenses/Expenses";
+import NewExpense from "./components/NewExpense/NewExpense";
+import Error from "./components/UI/Error";
 
 const App = () => {
-  const [expenses, setExpenses] = useState(() => {
-    const expenseFromLS = JSON.parse(localStorage.getItem("expenses"));
-    return expenseFromLS || [];
-  });
+  const [isFetching, setIsFetching] = useState(false);
+  const [expenses, setExpenses] = useState([]);
+  const [error, setError] = useState(null);
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-  }, [expenses]);
+    const getExpenses = async () => {
+      setIsFetching(true);
+      try {
+        const response = await fetch("http://localhost:3005/expenses");
+        const responseData = await response.json();
+        if (!response.ok) {
+          throw new Error("Failed fetching data");
+        }
+        setExpenses(responseData.expenses);
+      } catch (error) {
+        setError({
+          title: "An error occured!",
+          message: "Failed fetching expenses data, please try again later.",
+        });
+        setShowError(true);
+      }
+      setIsFetching(false);
+    };
+    getExpenses();
+    console.log(expenses);
+  }, []);
 
-  const addExpenseHandler = (expense) => {
-    setExpenses((prevExpenses) => {
-      return [expense, ...prevExpenses];
-    });
-    console.log("Uus kulu lisatud:", expense);
+  const errorHandler = () => {
+    setError(null);
+    setShowError(false);
+  };
+
+  const addExpensehandler = (expense) => {
+    const addExpense = async (expense) => {
+      try {
+        const response = await fetch("http://localhost:3005/add-expense", {
+          method: "POST",
+          body: JSON.stringify(expense),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const responseData = await response.json();
+        if (!response.ok) {
+          throw new Error("Failed saving data");
+        }
+        setExpenses([expense, ...expenses]);
+      } catch (error) {
+        setError({
+          title: "An error occured!",
+          message: "Failed saving expenses data, please try again.",
+        });
+        setShowError(true);
+      }
+    };
+    addExpense(expense);
   };
 
   return (
     <div className="App">
-      <NewExpense onAddExpense={addExpenseHandler} />
-      <Expenses items={expenses} />
+      {showError && (
+        <Error
+          title={error.title}
+          message={error.message}
+          onConfirm={errorHandler}
+        />
+      )}
+      <NewExpense onAddExpense={addExpensehandler}></NewExpense>
+      <Expenses expenses={expenses} isLoading={isFetching}></Expenses>
     </div>
   );
 };

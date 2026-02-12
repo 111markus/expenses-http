@@ -1,19 +1,22 @@
 import "./Expenses.css";
-import ExpenseItem from "./ExpenseItem";
 import Card from "../UI/Card";
 import ExpensesFilter from "./ExpensesFilter";
+import ExpensesList from "./ExpensesList";
 import { useState } from "react";
 
 const Expenses = (props) => {
   const [filteredYear, setFilteredYear] = useState("2023");
 
-  const filterChangeHandler = (selectedYear) => {
-    setFilteredYear(selectedYear);
-    console.log("Valitud aasta:", selectedYear);
+  console.log("Year data in Expenses.js " + filteredYear);
+
+  const filterChangeHandler = (year) => {
+    console.log("Filter change handled by Expenses.js");
+    console.log(year + " in Expenses.js");
+    setFilteredYear(year);
   };
 
   const filteredExpenses = props.expenses.filter((expense) => {
-    return new Date(expense.date).getFullYear() == filteredYear;
+    return new Date(expense.date).getFullYear().toString() === filteredYear;
   });
 
   return (
@@ -21,17 +24,11 @@ const Expenses = (props) => {
       <ExpensesFilter
         selected={filteredYear}
         onChangeFilter={filterChangeHandler}
-      />
-
-      {filteredExpenses.length === 0 ? (
-        <p style={{ color: "white", textAlign: "center" }}>
-          Sellel aastal kulusid ei leitud.
-        </p>
-      ) : (
-        filteredExpenses.map((item) => (
-          <ExpenseItem key={item.id} expenseData={item} />
-        ))
-      )}
+      ></ExpensesFilter>
+      <ExpensesList
+        filteredExpenses={filteredExpenses}
+        isLoading={props.isLoading}
+      ></ExpensesList>
     </Card>
   );
 };

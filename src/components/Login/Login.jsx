@@ -1,6 +1,7 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useContext } from "react";
 import Card from "../UI/Card";
 import Button from "../UI/Button";
+import AuthContext from "../../store/auth-context";
 import "./Login.css";
 
 const initialState = {
@@ -40,7 +41,8 @@ const loginReducer = (state, action) => {
   }
 };
 
-const Login = ({ onLogin }) => {
+const Login = () => {
+  const ctx = useContext(AuthContext);
   const [state, dispatch] = useReducer(loginReducer, initialState);
 
   const usernameChangeHandler = (e) => {
@@ -73,12 +75,7 @@ const Login = ({ onLogin }) => {
 
       dispatch({ type: "SUBMIT_SUCCESS" });
 
-      // Save user info to localStorage
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", data.user.username);
-      localStorage.setItem("userId", data.user.id);
-
-      onLogin(data.user.username);
+      ctx.onLogin(data.user.username);
     } catch (err) {
       dispatch({ type: "SUBMIT_ERROR", message: err.message });
     }
